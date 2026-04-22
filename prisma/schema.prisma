@@ -1,0 +1,126 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── CATALOG ──────────────────────────────────────────────────────────────────
+
+model categories {
+  id           String          @id @default(uuid())
+  jueri_id     Int             @unique
+  name         String
+  slug         String          @unique
+  created_at   DateTime        @default(now())
+  updated_at   DateTime        @updatedAt
+  products     products[]
+  subcategories subcategories[]
+}
+
+model subcategories {
+  id          String     @id @default(uuid())
+  jueri_id    Int        @unique
+  category_id String
+  category    categories @relation(fields: [category_id], references: [id])
+  name        String
+  slug        String     @unique
+  created_at  DateTime   @default(now())
+  updated_at  DateTime   @updatedAt
+  products    products[]
+}
+
+model products {
+  id               String         @id @default(uuid())
+  jueri_id         Int            @unique
+  sku              String?        @unique
+  name             String
+  description      String?
+  description_full String?
+  category_id      String?
+  category         categories?    @relation(fields: [category_id], references: [id])
+  subcategory_id   String?
+  subcategory      subcategories? @relation(fields: [subcategory_id], references: [id])
+  plating_type     String?
+  price            Decimal        @db.Decimal(10, 2)
+  weight           Decimal?       @db.Decimal(8, 4)
+  color            String?
+  barcode          String?
+  is_active        Boolean        @default(true)
+  is_featured      Boolean        @default(false)
+  is_recommended   Boolean        @default(false)
+  is_favorite      Boolean        @default(false)
+  display_order    Int            @default(0)
+  last_synced_at   DateTime?
+  created_at       DateTime       @default(now())
+  updated_at       DateTime       @updatedAt
+
+  inventory           inventory?
+  images              product_images[]
+  collection_products collection_products[]
+}
+
+model product_images {
+  id         String   @id @default(uuid())
+  product_id String
+  product    products @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  url        String
+  is_primary Boolean  @default(false)
+  order      Int      @default(0)
+  created_at DateTime @default(now())
+}
+
+// ─── INVENTORY ────────────────────────────────────────────────────────────────
+
+model inventory {
+  id                String   @id @default(uuid())
+  product_id        String   @unique
+  product           products @relation(fields: [product_id], references: [id])
+  quantity          Int      @default(0)
+  reserved_quantity Int      @default(0)
+  last_synced_at    DateTime?
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+}
+
+// ─── COLLECTIONS ──────────────────────────────────────────────────────────────
+
+model collections {
+  id            String                @id @default(uuid())
+  name          String
+  slug          String                @unique
+  description   String?
+  cover_image   String?
+  is_active     Boolean               @default(true)
+  display_order Int                   @default(0)
+  created_at    DateTime              @default(now())
+  updated_at    DateTime              @updatedAt
+  products      collection_products[]
+}
+
+model collection_products {
+  id            String      @id @default(uuid())
+  collection_id String
+  collection    collections @relation(fields: [collection_id], references: [id])
+  product_id    String
+  product       products    @relation(fields: [product_id], references: [id])
+  display_order Int         @default(0)
+  created_at    DateTime    @default(now())
+
+  @@unique([collection_id, product_id])
+}
+
+// ─── SYNC ─────────────────────────────────────────────────────────────────────
+
+model sync_logs {
+  id             String   @id @default(uuid())
+  type           String
+  direction      String
+  status         String
+  items_affected Int      @default(0)
+  error_message  String?
+  payload        Json?
+  created_at     DateTime @default(now())
+}
