@@ -1,7 +1,5 @@
 node_modules/
 dist/
 generated/
-
-.env
-
 supabase/
+.env
