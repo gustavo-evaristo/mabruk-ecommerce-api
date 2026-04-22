@@ -1,5 +1,7 @@
-node_modules
-dist
-generated
+node_modules/
+dist/
+generated/
 
-*env
+.env
+
+supabase/
