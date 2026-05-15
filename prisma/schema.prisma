@@ -1,0 +1,329 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// =========================================================
+// Catálogo
+// =========================================================
+
+model categories {
+  id        String   @id @default(uuid())
+  slug      String   @unique
+  name      String
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  products  products[]
+}
+
+model collections {
+  id              String   @id @default(uuid())
+  slug            String   @unique
+  name            String
+  description     String?
+  coverImageUrl   String?
+  order           Int      @default(0)
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  products        collection_products[]
+}
+
+model tags {
+  id        String   @id @default(uuid())
+  slug      String   @unique
+  name      String
+  createdAt DateTime @default(now())
+  products  product_tags[]
+}
+
+model banners {
+  id              String    @id @default(uuid())
+  imageUrl        String
+  mobileImageUrl  String?
+  linkUrl         String?
+  alt             String?
+  order           Int       @default(0)
+  isActive        Boolean   @default(true)
+  startsAt        DateTime?
+  endsAt          DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model products {
+  id              String   @id @default(uuid())
+  slug            String   @unique
+  name            String
+  description     String?
+  status          String   @default("DRAFT") // DRAFT | ACTIVE | ARCHIVED
+  categoryId      String
+  category        categories @relation(fields: [categoryId], references: [id])
+  basePrice       Int        // cents — preço "de" exibido quando todas as variantes têm preços diferentes
+  garantia        String?
+  cuidados        String?
+  weightInGrams   Int?
+  dimensionLength Float?     // cm
+  dimensionWidth  Float?     // cm
+  dimensionHeight Float?     // cm
+  seoTitle        String?
+  seoDescription  String?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  variants        product_variants[]
+  images          product_images[]
+  collections     collection_products[]
+  tags            product_tags[]
+
+  @@index([categoryId])
+  @@index([status])
+}
+
+model product_variants {
+  id        String   @id @default(uuid())
+  productId String
+  product   products @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sku       String   @unique
+  banho     String   // OURO_18K | RODIO | OURO_ROSE
+  size      String   // '14' | '15' | '16' | 'UNICO' | 'P' | 'M' | 'G'…
+  price     Int      // cents
+  stock     Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  images       product_images[]
+  stockMoves   stock_movements[]
+  cartItems    cart_items[]
+  orderItems   order_items[]
+
+  @@unique([productId, banho, size])
+  @@index([productId])
+}
+
+model product_images {
+  id        String   @id @default(uuid())
+  productId String
+  product   products @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variantId String?
+  variant   product_variants? @relation(fields: [variantId], references: [id], onDelete: SetNull)
+  url       String
+  alt       String?
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([productId])
+}
+
+model collection_products {
+  collectionId String
+  collection   collections @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  productId    String
+  product      products    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  order        Int         @default(0)
+
+  @@id([collectionId, productId])
+}
+
+model product_tags {
+  productId String
+  product   products @relation(fields: [productId], references: [id], onDelete: Cascade)
+  tagId     String
+  tag       tags     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([productId, tagId])
+}
+
+// =========================================================
+// Usuários
+// =========================================================
+
+model customers {
+  id            String   @id @default(uuid())
+  name          String
+  email         String   @unique
+  phone         String?
+  cpfCnpj       String?
+  password      String
+  emailVerified Boolean  @default(false)
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  addresses     addresses[]
+  carts         carts[]
+  orders        orders[]
+}
+
+model addresses {
+  id           String   @id @default(uuid())
+  customerId   String
+  customer     customers @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  label        String?
+  recipient    String
+  zipCode      String
+  street       String
+  number       String
+  complement   String?
+  neighborhood String
+  city         String
+  state        String
+  isDefault    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([customerId])
+}
+
+model admins {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      String   @default("OWNER") // OWNER (MVP) — preparado p/ STAFF futuro
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// =========================================================
+// Carrinho e pedido
+// =========================================================
+
+model carts {
+  id         String   @id @default(uuid())
+  customerId String?
+  customer   customers? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  guestToken String?  @unique
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  items      cart_items[]
+
+  @@index([customerId])
+}
+
+model cart_items {
+  id        String   @id @default(uuid())
+  cartId    String
+  cart      carts    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  variantId String
+  variant   product_variants @relation(fields: [variantId], references: [id])
+  quantity  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([cartId, variantId])
+  @@index([cartId])
+}
+
+model orders {
+  id               String   @id @default(uuid())
+  number           String   @unique
+  customerId       String?
+  customer         customers? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  customerSnapshot Json     // { name, email, phone?, cpf? }
+  status           String   @default("PENDING_PAYMENT") // PENDING_PAYMENT | PAID | PREPARING | SHIPPED | DELIVERED | CANCELED | REFUNDED
+  itemsTotal       Int      // cents
+  shippingTotal    Int      @default(0)
+  discountTotal    Int      @default(0)
+  grandTotal       Int      // cents
+  shippingAddress  Json     // snapshot do endereço
+  invoiceNumber    String?
+  notes            String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  items     order_items[]
+  payments  payments[]
+  shipment  shipments?
+
+  @@index([customerId])
+  @@index([status])
+}
+
+model order_items {
+  id              String   @id @default(uuid())
+  orderId         String
+  order           orders   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  variantId       String
+  variant         product_variants @relation(fields: [variantId], references: [id])
+  productSnapshot Json     // { productId, name, slug, imageUrl?, banho, size, sku }
+  unitPrice       Int      // cents
+  quantity        Int
+  lineTotal       Int      // cents
+
+  @@index([orderId])
+}
+
+model payments {
+  id            String   @id @default(uuid())
+  orderId       String
+  order         orders   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  method        String   // PIX | CREDIT_CARD
+  provider      String   // 'fake' | 'mercadopago' …
+  providerTxId  String   @unique
+  status        String   @default("PENDING") // PENDING | APPROVED | REJECTED | REFUNDED
+  installments  Int?
+  amount        Int
+  qrCode        String?
+  qrCodeBase64  String?
+  expiresAt     DateTime?
+  paidAt        DateTime?
+  raw           Json?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([orderId])
+}
+
+model shipments {
+  id              String   @id @default(uuid())
+  orderId         String   @unique
+  order           orders   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  carrier         String
+  service         String
+  externalOrderId String?  // ex: melhorEnvioOrderId
+  trackingCode    String?
+  cost            Int      // cents
+  estimatedDays   Int
+  shippedAt       DateTime?
+  deliveredAt     DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// =========================================================
+// Operacional
+// =========================================================
+
+model stock_movements {
+  id          String   @id @default(uuid())
+  variantId   String
+  variant     product_variants @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  delta       Int      // positivo (entrada) ou negativo (saída)
+  reason      String   // ORDER_PAID | ORDER_CANCELED | MANUAL_IN | MANUAL_OUT | ADJUSTMENT
+  referenceId String?
+  notes       String?
+  createdAt   DateTime @default(now())
+
+  @@index([variantId])
+}
+
+model email_logs {
+  id         String   @id @default(uuid())
+  to         String
+  template   String
+  status     String   // SENT | FAILED
+  providerId String?
+  payload    Json?
+  error      String?
+  sentAt     DateTime @default(now())
+}

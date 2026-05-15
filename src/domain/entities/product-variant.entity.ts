@@ -1,0 +1,74 @@
+import { UUID } from './vos';
+
+export type Banho = 'OURO_18K' | 'RODIO' | 'OURO_ROSE';
+
+type ProductVariantEntityProps = {
+  id?: UUID | string | null;
+  productId: UUID | string;
+  sku: string;
+  banho: string;
+  size: string;
+  price: number; // cents
+  stock?: number;
+  isActive?: boolean;
+  createdAt?: Date | null;
+  updatedAt?: Date | null;
+};
+
+export class ProductVariantEntity {
+  id: UUID;
+  productId: UUID;
+  sku: string;
+  banho: string;
+  size: string;
+  price: number;
+  stock: number;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+
+  constructor(props: ProductVariantEntityProps) {
+    if (props.id instanceof UUID) {
+      this.id = props.id;
+    } else if (typeof props.id === 'string') {
+      this.id = UUID.from(props.id);
+    } else {
+      this.id = UUID.generate();
+    }
+    this.productId =
+      props.productId instanceof UUID ? props.productId : UUID.from(props.productId);
+    this.sku = props.sku;
+    this.banho = props.banho;
+    this.size = props.size;
+    this.price = props.price;
+    this.stock = props.stock ?? 0;
+    this.isActive = props.isActive ?? true;
+
+    const createdAt = props.createdAt || new Date();
+    this.createdAt = createdAt;
+    this.updatedAt = props.updatedAt || createdAt;
+  }
+
+  private touch() {
+    this.updatedAt = new Date();
+  }
+
+  update(props: Partial<ProductVariantEntityProps>) {
+    if (props.sku !== undefined) this.sku = props.sku;
+    if (props.banho !== undefined) this.banho = props.banho;
+    if (props.size !== undefined) this.size = props.size;
+    if (props.price !== undefined) this.price = props.price;
+    if (props.stock !== undefined) this.stock = props.stock;
+    if (props.isActive !== undefined) this.isActive = props.isActive;
+    this.touch();
+  }
+
+  applyStockDelta(delta: number) {
+    const next = this.stock + delta;
+    if (next < 0) {
+      throw new Error(`Insufficient stock for variant ${this.sku}`);
+    }
+    this.stock = next;
+    this.touch();
+  }
+}
