@@ -11,8 +11,6 @@ interface Input {
   status?: ProductStatus;
   categoryId?: string;
   basePriceCents?: number;
-  garantia?: string | null;
-  cuidados?: string | null;
   weightInGrams?: number | null;
   dimensionLength?: number | null;
   dimensionWidth?: number | null;
@@ -45,8 +43,6 @@ export class UpdateProductUseCase {
       status: input.status,
       categoryId: input.categoryId,
       basePrice: input.basePriceCents,
-      garantia: input.garantia,
-      cuidados: input.cuidados,
       weightInGrams: input.weightInGrams,
       dimensionLength: input.dimensionLength,
       dimensionWidth: input.dimensionWidth,

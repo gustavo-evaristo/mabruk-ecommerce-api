@@ -60,8 +60,6 @@ export const presentProductDetails = (details: ProductDetails) => {
   });
   return {
     ...base,
-    garantia: details.product.garantia,
-    cuidados: details.product.cuidados,
     weightInGrams: details.product.weightInGrams,
     dimensions:
       details.product.dimensionLength || details.product.dimensionWidth || details.product.dimensionHeight

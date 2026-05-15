@@ -12,8 +12,6 @@ interface Input {
   status?: ProductStatus;
   categoryId: string;
   basePriceCents: number;
-  garantia?: string;
-  cuidados?: string;
   weightInGrams?: number;
   dimensionLength?: number;
   dimensionWidth?: number;
@@ -51,8 +49,6 @@ export class CreateProductUseCase {
       status: input.status ?? 'DRAFT',
       categoryId: input.categoryId,
       basePrice: input.basePriceCents,
-      garantia: input.garantia,
-      cuidados: input.cuidados,
       weightInGrams: input.weightInGrams,
       dimensionLength: input.dimensionLength,
       dimensionWidth: input.dimensionWidth,

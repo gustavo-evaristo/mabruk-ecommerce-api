@@ -41,16 +41,6 @@ export class CreateProductDTO {
   basePriceCents: number;
 
   @IsOptional()
-  @IsString()
-  @ApiPropertyOptional()
-  garantia?: string;
-
-  @IsOptional()
-  @IsString()
-  @ApiPropertyOptional()
-  cuidados?: string;
-
-  @IsOptional()
   @IsInt()
   @ApiPropertyOptional({ example: 5 })
   weightInGrams?: number;
@@ -91,8 +81,6 @@ export class UpdateProductDTO {
   @IsOptional() @IsIn(['DRAFT', 'ACTIVE', 'ARCHIVED']) @ApiPropertyOptional() status?: 'DRAFT' | 'ACTIVE' | 'ARCHIVED';
   @IsOptional() @IsUUID() @ApiPropertyOptional() categoryId?: string;
   @IsOptional() @IsInt() @Min(0) @ApiPropertyOptional() basePriceCents?: number;
-  @IsOptional() @IsString() @ApiPropertyOptional() garantia?: string;
-  @IsOptional() @IsString() @ApiPropertyOptional() cuidados?: string;
   @IsOptional() @IsInt() @ApiPropertyOptional() weightInGrams?: number;
   @IsOptional() @ApiPropertyOptional() dimensionLength?: number;
   @IsOptional() @ApiPropertyOptional() dimensionWidth?: number;

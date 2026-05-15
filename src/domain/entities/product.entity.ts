@@ -10,8 +10,6 @@ type ProductEntityProps = {
   status?: ProductStatus;
   categoryId: UUID | string;
   basePrice: number; // cents
-  garantia?: string | null;
-  cuidados?: string | null;
   weightInGrams?: number | null;
   dimensionLength?: number | null;
   dimensionWidth?: number | null;
@@ -30,8 +28,6 @@ export class ProductEntity {
   status: ProductStatus;
   categoryId: UUID;
   basePrice: number;
-  garantia: string | null;
-  cuidados: string | null;
   weightInGrams: number | null;
   dimensionLength: number | null;
   dimensionWidth: number | null;
@@ -61,8 +57,6 @@ export class ProductEntity {
     }
 
     this.basePrice = props.basePrice;
-    this.garantia = props.garantia ?? null;
-    this.cuidados = props.cuidados ?? null;
     this.weightInGrams = props.weightInGrams ?? null;
     this.dimensionLength = props.dimensionLength ?? null;
     this.dimensionWidth = props.dimensionWidth ?? null;
@@ -89,8 +83,6 @@ export class ProductEntity {
         props.categoryId instanceof UUID ? props.categoryId : UUID.from(props.categoryId);
     }
     if (props.basePrice !== undefined) this.basePrice = props.basePrice;
-    if (props.garantia !== undefined) this.garantia = props.garantia ?? null;
-    if (props.cuidados !== undefined) this.cuidados = props.cuidados ?? null;
     if (props.weightInGrams !== undefined) this.weightInGrams = props.weightInGrams ?? null;
     if (props.dimensionLength !== undefined) this.dimensionLength = props.dimensionLength ?? null;
     if (props.dimensionWidth !== undefined) this.dimensionWidth = props.dimensionWidth ?? null;
