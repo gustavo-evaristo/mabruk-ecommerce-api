@@ -89,7 +89,7 @@ model product_variants {
   productId String
   product   products @relation(fields: [productId], references: [id], onDelete: Cascade)
   sku       String   @unique
-  banho     String   // OURO_18K | RODIO | OURO_ROSE
+  banho     String   // OURO_18K | PRATA_925 | ACO_INOX
   size      String   // '14' | '15' | '16' | 'UNICO' | 'P' | 'M' | 'G'…
   price     Int      // cents
   stock     Int      @default(0)

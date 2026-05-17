@@ -92,7 +92,7 @@ export class UpdateProductDTO {
 
 export class CreateVariantDTO {
   @IsString() @IsNotEmpty() @ApiProperty({ example: 'CLO-OURO-16' }) sku: string;
-  @IsIn(['OURO_18K', 'RODIO', 'OURO_ROSE']) @ApiProperty({ example: 'OURO_18K' }) banho: string;
+  @IsIn(['OURO_18K', 'PRATA_925', 'ACO_INOX']) @ApiProperty({ example: 'OURO_18K' }) banho: string;
   @IsString() @ApiProperty({ example: '16' }) size: string;
   @IsInt() @Min(0) @ApiProperty({ example: 14990 }) priceCents: number;
   @IsOptional() @IsInt() @Min(0) @ApiPropertyOptional({ example: 10 }) stock?: number;
@@ -101,7 +101,7 @@ export class CreateVariantDTO {
 
 export class UpdateVariantDTO {
   @IsOptional() @IsString() @ApiPropertyOptional() sku?: string;
-  @IsOptional() @IsIn(['OURO_18K', 'RODIO', 'OURO_ROSE']) @ApiPropertyOptional() banho?: string;
+  @IsOptional() @IsIn(['OURO_18K', 'PRATA_925', 'ACO_INOX']) @ApiPropertyOptional() banho?: string;
   @IsOptional() @IsString() @ApiPropertyOptional() size?: string;
   @IsOptional() @IsInt() @Min(0) @ApiPropertyOptional() priceCents?: number;
   @IsOptional() @ApiPropertyOptional() isActive?: boolean;

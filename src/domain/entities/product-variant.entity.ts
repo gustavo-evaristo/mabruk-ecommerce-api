@@ -1,6 +1,6 @@
 import { UUID } from './vos';
 
-export type Banho = 'OURO_18K' | 'RODIO' | 'OURO_ROSE';
+export type Banho = 'OURO_18K' | 'PRATA_925' | 'ACO_INOX';
 
 type ProductVariantEntityProps = {
   id?: UUID | string | null;

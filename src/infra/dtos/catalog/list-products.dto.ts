@@ -24,7 +24,7 @@ export class ListProductsQueryDTO {
   tag?: string;
 
   @IsOptional()
-  @IsIn(['OURO_18K', 'RODIO', 'OURO_ROSE'])
+  @IsIn(['OURO_18K', 'PRATA_925', 'ACO_INOX'])
   @ApiPropertyOptional({ example: 'OURO_18K' })
   banho?: string;
 
