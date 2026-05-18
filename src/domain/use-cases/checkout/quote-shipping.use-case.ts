@@ -3,6 +3,7 @@ import { ICartRepository } from 'src/domain/repositories/cart.repository';
 import { IProductVariantRepository } from 'src/domain/repositories/product-variant.repository';
 import { IProductRepository } from 'src/domain/repositories/product.repository';
 import { ShippingCalculator, ShippingQuote } from 'src/domain/services/shipping-calculator';
+import { StoreConfigService } from 'src/domain/services/store-config';
 import { CEP } from 'src/domain/entities/vos';
 
 interface Input {
@@ -24,11 +25,12 @@ export class QuoteShippingUseCase {
     private readonly variantRepository: IProductVariantRepository,
     private readonly productRepository: IProductRepository,
     private readonly shippingCalculator: ShippingCalculator,
+    private readonly storeConfig: StoreConfigService,
   ) {}
 
   async execute(input: Input): Promise<QuoteShippingOutput> {
     const toZip = CEP.create(input.zipCode).value;
-    const fromZip = (process.env.STORE_FROM_ZIP ?? '01310-100').replace(/\D/g, '');
+    const fromZip = await this.storeConfig.getOriginZip();
 
     const data = await this.cartRepository.getWithItems(input.cartId);
     if (!data) throw new NotFoundException('Cart not found');

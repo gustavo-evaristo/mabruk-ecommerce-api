@@ -7,12 +7,13 @@ import {
   ShippingQuote,
   ShippingQuoteInput,
 } from 'src/domain/services/shipping-calculator';
+import { StoreConfigService } from 'src/domain/services/store-config';
 
 /**
  * Calculadora de frete fake para MVP.
  *
  * Regras:
- * - Frete grátis se subtotal >= FREE_SHIPPING_THRESHOLD_CENTS (env, default 29900)
+ * - Frete grátis se subtotal >= setting `shipping.freeShippingThresholdCents` (default R$ 300)
  * - Tabela por região:
  *   - SP/RJ/MG/ES (Sudeste): R$ 15 PAC / R$ 25 SEDEX
  *   - PR/SC/RS (Sul): R$ 20 PAC / R$ 32 SEDEX
@@ -25,6 +26,10 @@ export class FixedShippingCalculator extends ShippingCalculator {
   readonly providerName = 'fake-fixed-table';
   private readonly logger = new Logger(FixedShippingCalculator.name);
 
+  constructor(private readonly storeConfig: StoreConfigService) {
+    super();
+  }
+
   private resolveRegion(cep: string): 'SE' | 'S' | 'OTHER' {
     const digits = cep.replace(/\D/g, '');
     const prefix = parseInt(digits.slice(0, 2), 10);
@@ -35,7 +40,7 @@ export class FixedShippingCalculator extends ShippingCalculator {
   }
 
   async quote(input: ShippingQuoteInput): Promise<ShippingQuote[]> {
-    const threshold = Number(process.env.FREE_SHIPPING_THRESHOLD_CENTS ?? 29900);
+    const threshold = await this.storeConfig.getFreeShippingThresholdCents();
     const region = this.resolveRegion(input.toZip);
 
     const table: Record<typeof region, { pac: number; sedex: number; pacDays: number; sedexDays: number }> = {

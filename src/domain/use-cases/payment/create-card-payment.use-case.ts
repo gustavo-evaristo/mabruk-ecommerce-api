@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { IOrderRepository } from 'src/domain/repositories/order.repository';
 import { IPaymentRepository } from 'src/domain/repositories/payment.repository';
 import { PaymentGateway } from 'src/domain/services/payment-gateway';
+import { StoreConfigService } from 'src/domain/services/store-config';
 import { PaymentEntity } from 'src/domain/entities/payment.entity';
 import { SettleOrderPaymentUseCase } from './settle-order-payment.use-case';
 
@@ -18,6 +19,7 @@ export class CreateCardPaymentUseCase {
     private readonly paymentRepository: IPaymentRepository,
     private readonly gateway: PaymentGateway,
     private readonly settle: SettleOrderPaymentUseCase,
+    private readonly storeConfig: StoreConfigService,
   ) {}
 
   async execute(input: Input) {
@@ -26,7 +28,7 @@ export class CreateCardPaymentUseCase {
     if (order.status !== 'PENDING_PAYMENT') {
       throw new BadRequestException(`Order not awaiting payment (status=${order.status})`);
     }
-    const maxInstallments = Number(process.env.MAX_INSTALLMENTS_NO_INTEREST ?? 2);
+    const maxInstallments = await this.storeConfig.getMaxInstallments();
     if (input.installments < 1 || input.installments > maxInstallments) {
       throw new BadRequestException(`Parcelamento entre 1 e ${maxInstallments}x`);
     }

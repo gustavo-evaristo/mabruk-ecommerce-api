@@ -13,6 +13,7 @@ import { IProductImageRepository } from 'src/domain/repositories/product-image.r
 import { IOrderRepository } from 'src/domain/repositories/order.repository';
 import { IShipmentRepository } from 'src/domain/repositories/shipment.repository';
 import { ShippingCalculator } from 'src/domain/services/shipping-calculator';
+import { StoreConfigService } from 'src/domain/services/store-config';
 import { MailSender } from 'src/domain/services/mail-sender';
 import {
   CustomerSnapshot,
@@ -51,6 +52,7 @@ export class CreateOrderFromCartUseCase {
     private readonly shipmentRepository: IShipmentRepository,
     private readonly shippingCalculator: ShippingCalculator,
     private readonly mailSender: MailSender,
+    private readonly storeConfig: StoreConfigService,
   ) {}
 
   async execute(input: Input): Promise<CreateOrderOutput> {
@@ -86,7 +88,7 @@ export class CreateOrderFromCartUseCase {
 
     // Cotação de frete (autoritativa no servidor — não confia no que o front mandou)
     const toZip = CEP.create(input.shippingAddress.zipCode).value;
-    const fromZip = (process.env.STORE_FROM_ZIP ?? '01310-100').replace(/\D/g, '');
+    const fromZip = await this.storeConfig.getOriginZip();
     const options = await this.shippingCalculator.quote({
       fromZip,
       toZip,

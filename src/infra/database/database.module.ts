@@ -42,6 +42,7 @@ import { SettingRepository } from './repositories/setting.repository';
 import { PromotionRepository } from './repositories/promotion.repository';
 import { LandingRepository } from './repositories/landing.repository';
 import { ReviewRepository } from './repositories/review.repository';
+import { StoreConfigService } from 'src/domain/services/store-config';
 
 @Module({
   providers: [
@@ -66,6 +67,7 @@ import { ReviewRepository } from './repositories/review.repository';
     { provide: IPromotionRepository, useClass: PromotionRepository },
     { provide: ILandingRepository, useClass: LandingRepository },
     { provide: IReviewRepository, useClass: ReviewRepository },
+    StoreConfigService,
   ],
   exports: [
     PrismaService,
@@ -89,6 +91,7 @@ import { ReviewRepository } from './repositories/review.repository';
     IPromotionRepository,
     ILandingRepository,
     IReviewRepository,
+    StoreConfigService,
   ],
 })
 export class DatabaseModule {}
