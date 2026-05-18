@@ -14,6 +14,7 @@ import { CartModule } from './controllers/cart.module';
 import { CheckoutModule } from './controllers/checkout.module';
 import { PaymentControllerModule } from './controllers/payment.module';
 import { AdminOrderModule } from './controllers/admin-order.module';
+import { AdminExtraModule } from './controllers/admin-extra.module';
 import { UtilsModule } from './controllers/utils.module';
 import { HealthController } from './controllers/health.controller';
 
@@ -34,6 +35,7 @@ import { HealthController } from './controllers/health.controller';
     CheckoutModule,
     PaymentControllerModule,
     AdminOrderModule,
+    AdminExtraModule,
     UtilsModule,
   ],
   controllers: [HealthController],

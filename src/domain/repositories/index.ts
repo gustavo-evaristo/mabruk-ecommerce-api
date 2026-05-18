@@ -13,3 +13,8 @@ export * from './order.repository';
 export * from './payment.repository';
 export * from './shipment.repository';
 export * from './stock-movement.repository';
+export * from './favorite.repository';
+export * from './setting.repository';
+export * from './promotion.repository';
+export * from './landing.repository';
+export * from './review.repository';

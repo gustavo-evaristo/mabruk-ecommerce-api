@@ -16,6 +16,11 @@ import {
   IShipmentRepository,
   IStockMovementRepository,
   ITagRepository,
+  IFavoriteRepository,
+  ISettingRepository,
+  IPromotionRepository,
+  ILandingRepository,
+  IReviewRepository,
 } from 'src/domain/repositories';
 import { CategoryRepository } from './repositories/category.repository';
 import { CollectionRepository } from './repositories/collection.repository';
@@ -32,6 +37,11 @@ import { OrderRepository } from './repositories/order.repository';
 import { PaymentRepository } from './repositories/payment.repository';
 import { ShipmentRepository } from './repositories/shipment.repository';
 import { StockMovementRepository } from './repositories/stock-movement.repository';
+import { FavoriteRepository } from './repositories/favorite.repository';
+import { SettingRepository } from './repositories/setting.repository';
+import { PromotionRepository } from './repositories/promotion.repository';
+import { LandingRepository } from './repositories/landing.repository';
+import { ReviewRepository } from './repositories/review.repository';
 
 @Module({
   providers: [
@@ -51,6 +61,11 @@ import { StockMovementRepository } from './repositories/stock-movement.repositor
     { provide: IPaymentRepository, useClass: PaymentRepository },
     { provide: IShipmentRepository, useClass: ShipmentRepository },
     { provide: IStockMovementRepository, useClass: StockMovementRepository },
+    { provide: IFavoriteRepository, useClass: FavoriteRepository },
+    { provide: ISettingRepository, useClass: SettingRepository },
+    { provide: IPromotionRepository, useClass: PromotionRepository },
+    { provide: ILandingRepository, useClass: LandingRepository },
+    { provide: IReviewRepository, useClass: ReviewRepository },
   ],
   exports: [
     PrismaService,
@@ -69,6 +84,11 @@ import { StockMovementRepository } from './repositories/stock-movement.repositor
     IPaymentRepository,
     IShipmentRepository,
     IStockMovementRepository,
+    IFavoriteRepository,
+    ISettingRepository,
+    IPromotionRepository,
+    ILandingRepository,
+    IReviewRepository,
   ],
 })
 export class DatabaseModule {}

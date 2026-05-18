@@ -67,7 +67,7 @@ Trocar uma implementação = mudar o `useClass` no Module — zero impacto em us
 pnpm install
 cp .env.example .env       # preencher DATABASE_URL com Supabase
 pnpm prisma:generate
-pnpm prisma:migrate        # cria tabelas + roda seed inicial
+pnpm prisma:migrate        # cria/aplica migrations
 pnpm dev                   # http://localhost:3000  (Swagger em /api)
 pnpm test
 pnpm lint
@@ -80,6 +80,16 @@ pnpm lint
 - Header: `Authorization: Bearer <token>`
 - Rotas B2B usam `@UseGuards(AdminJwtGuard)`; rotas B2C autenticadas usam `@UseGuards(CustomerJwtGuard)`.
 - **Guest cart**: o cliente cria carrinho sem login. Resposta contém `guestToken` (UUID). Os requests subsequentes ao cart enviam esse token (header `X-Cart-Token`) para validar posse.
+
+### Criar o primeiro admin
+
+Não há seed automática. Para criar o admin inicial, insira direto no banco via Prisma Studio (`pnpm prisma studio`) ou SQL — hashear a senha com bcrypt (10 rounds). Exemplo Node:
+
+```js
+const bcrypt = require('bcrypt');
+const hash = await bcrypt.hash('SuaSenhaForte', 10);
+// INSERT INTO admins (id, name, email, password, role) VALUES (...)
+```
 
 ## Estoque
 

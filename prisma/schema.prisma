@@ -79,6 +79,8 @@ model products {
   images          product_images[]
   collections     collection_products[]
   tags            product_tags[]
+  favorites       favorites[]
+  reviews         reviews[]
 
   @@index([categoryId])
   @@index([status])
@@ -158,6 +160,8 @@ model customers {
   addresses     addresses[]
   carts         carts[]
   orders        orders[]
+  favorites     favorites[]
+  reviews       reviews[]
 }
 
 model addresses {
@@ -324,4 +328,75 @@ model email_logs {
   payload    Json?
   error      String?
   sentAt     DateTime @default(now())
+}
+
+model favorites {
+  id         String   @id @default(uuid())
+  customerId String
+  customer   customers @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  productId  String
+  product    products  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@unique([customerId, productId])
+  @@index([customerId])
+}
+
+model settings {
+  group     String
+  key       String
+  value     Json
+  updatedAt DateTime @updatedAt
+
+  @@id([group, key])
+}
+
+model promotions {
+  id            String   @id @default(uuid())
+  type          String   // CAMPAIGN | COUPON | RULE
+  name          String
+  code          String?
+  description   String?
+  discountType  String   // PERCENT | FIXED_CENTS | FREE_SHIPPING
+  discountValue Int      @default(0)
+  scope         String?  @default("all")
+  usesMax       Int?
+  usesCount     Int      @default(0)
+  startsAt      DateTime?
+  expiresAt     DateTime?
+  status        String   @default("ACTIVE") // ACTIVE | SCHEDULED | EXPIRED | PAUSED
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([code])
+  @@index([type])
+  @@index([status])
+}
+
+model landings {
+  id              String   @id @default(uuid())
+  slug            String   @unique
+  name            String
+  blocks          Json     @default("[]")
+  seoTitle        String?
+  seoDescription  String?
+  status          String   @default("DRAFT") // PUBLISHED | DRAFT | ARCHIVED
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model reviews {
+  id         String   @id @default(uuid())
+  productId  String
+  product    products @relation(fields: [productId], references: [id], onDelete: Cascade)
+  customerId String
+  customer   customers @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  rating     Int
+  comment    String?
+  status     String   @default("PENDING") // PENDING | APPROVED | REJECTED
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([productId, status])
+  @@index([customerId])
 }
