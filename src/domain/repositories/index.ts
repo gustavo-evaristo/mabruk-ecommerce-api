@@ -18,3 +18,4 @@ export * from './setting.repository';
 export * from './promotion.repository';
 export * from './landing.repository';
 export * from './review.repository';
+export * from './attribute.repository';

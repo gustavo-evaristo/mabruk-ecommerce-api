@@ -5,9 +5,9 @@ export interface ProductSnapshot {
   name: string;
   slug: string;
   imageUrl?: string | null;
-  banho: string;
-  size: string;
   sku: string;
+  /** Atributos da variante no momento da compra. Ex: [{name:'Banho', value:'Ouro 18k'}, {name:'Cor', value:'Azul'}]. Vazio quando produto SIMPLE. */
+  attributes: { name: string; value: string }[];
 }
 
 type OrderItemEntityProps = {

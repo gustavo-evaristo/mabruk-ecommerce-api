@@ -52,7 +52,7 @@ export class FavoriteRepository implements IFavoriteRepository {
     const [variants, images] = await Promise.all([
       this.prisma.product_variants.findMany({
         where: { productId: { in: productIds }, isActive: true },
-        orderBy: [{ banho: 'asc' }, { size: 'asc' }],
+        orderBy: { createdAt: 'asc' },
       }),
       this.prisma.product_images.findMany({
         where: { productId: { in: productIds } },
@@ -80,8 +80,12 @@ export class FavoriteRepository implements IFavoriteRepository {
         name: p.name,
         description: p.description,
         status: p.status,
+        type: p.type,
         categoryId: UUID.from(p.categoryId),
         basePrice: p.basePrice,
+        sku: p.sku,
+        price: p.price,
+        stock: p.stock,
         weightInGrams: p.weightInGrams,
         dimensionLength: p.dimensionLength,
         dimensionWidth: p.dimensionWidth,
@@ -97,15 +101,16 @@ export class FavoriteRepository implements IFavoriteRepository {
             id: UUID.from(v.id),
             productId: UUID.from(v.productId),
             sku: v.sku,
-            banho: v.banho,
-            size: v.size,
             price: v.price,
             stock: v.stock,
             isActive: v.isActive,
+            weightInGrams: v.weightInGrams,
+            isDefault: v.isDefault,
             createdAt: v.createdAt,
             updatedAt: v.updatedAt,
           }),
       ),
+      variantValues: {},
       images: (imagesByProduct.get(p.id) ?? []).map(
         (i) =>
           new ProductImageEntity({

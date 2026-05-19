@@ -24,11 +24,6 @@ export class ListProductsQueryDTO {
   tag?: string;
 
   @IsOptional()
-  @IsIn(['OURO_18K', 'PRATA_925', 'ACO_INOX'])
-  @ApiPropertyOptional({ example: 'OURO_18K' })
-  banho?: string;
-
-  @IsOptional()
   @Transform(({ value }) => (value === undefined || value === '' ? undefined : Number(value)))
   @IsInt()
   @Min(0)

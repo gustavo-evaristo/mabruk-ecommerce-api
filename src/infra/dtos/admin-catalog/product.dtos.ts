@@ -4,6 +4,7 @@ import {
   IsIn,
   IsInt,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
   IsUUID,
@@ -31,6 +32,11 @@ export class CreateProductDTO {
   @ApiPropertyOptional({ example: 'DRAFT' })
   status?: 'DRAFT' | 'ACTIVE' | 'ARCHIVED';
 
+  @IsOptional()
+  @IsIn(['SIMPLE', 'VARIABLE'])
+  @ApiPropertyOptional({ example: 'SIMPLE' })
+  type?: 'SIMPLE' | 'VARIABLE';
+
   @IsUUID()
   @ApiProperty({ description: 'ID da categoria' })
   categoryId: string;
@@ -40,9 +46,37 @@ export class CreateProductDTO {
   @ApiProperty({ example: 14990, description: 'Preço base em centavos' })
   basePriceCents: number;
 
+  /** SKU único (obrigatório se type=SIMPLE) */
+  @IsOptional()
+  @IsString()
+  @ApiPropertyOptional({ example: 'CLO-001' })
+  sku?: string;
+
+  /** Preço em centavos (obrigatório se type=SIMPLE) */
   @IsOptional()
   @IsInt()
+  @Min(0)
+  @ApiPropertyOptional({ example: 14990 })
+  priceCents?: number;
+
+  /** Estoque (só usado em type=SIMPLE) */
+  @IsOptional()
+  @IsInt()
+  @Min(0)
   @ApiPropertyOptional({ example: 5 })
+  stock?: number;
+
+  /** IDs dos atributos que esse produto usa (obrigatório e não vazio se type=VARIABLE) */
+  @IsOptional()
+  @IsArray()
+  @IsUUID('all', { each: true })
+  @ApiPropertyOptional({ type: [String] })
+  attributeIds?: string[];
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @ApiPropertyOptional({ example: 2.5 })
   weightInGrams?: number;
 
   @IsOptional()
@@ -81,7 +115,10 @@ export class UpdateProductDTO {
   @IsOptional() @IsIn(['DRAFT', 'ACTIVE', 'ARCHIVED']) @ApiPropertyOptional() status?: 'DRAFT' | 'ACTIVE' | 'ARCHIVED';
   @IsOptional() @IsUUID() @ApiPropertyOptional() categoryId?: string;
   @IsOptional() @IsInt() @Min(0) @ApiPropertyOptional() basePriceCents?: number;
-  @IsOptional() @IsInt() @ApiPropertyOptional() weightInGrams?: number;
+  @IsOptional() @IsString() @ApiPropertyOptional() sku?: string;
+  @IsOptional() @IsInt() @Min(0) @ApiPropertyOptional() priceCents?: number;
+  @IsOptional() @IsInt() @Min(0) @ApiPropertyOptional() stock?: number;
+  @IsOptional() @IsNumber() @Min(0) @ApiPropertyOptional() weightInGrams?: number;
   @IsOptional() @ApiPropertyOptional() dimensionLength?: number;
   @IsOptional() @ApiPropertyOptional() dimensionWidth?: number;
   @IsOptional() @ApiPropertyOptional() dimensionHeight?: number;
@@ -92,19 +129,23 @@ export class UpdateProductDTO {
 
 export class CreateVariantDTO {
   @IsString() @IsNotEmpty() @ApiProperty({ example: 'CLO-OURO-16' }) sku: string;
-  @IsIn(['OURO_18K', 'PRATA_925', 'ACO_INOX']) @ApiProperty({ example: 'OURO_18K' }) banho: string;
-  @IsString() @ApiProperty({ example: '16' }) size: string;
+  /** Lista de attribute_value IDs — um por atributo do produto */
+  @IsArray() @IsUUID('all', { each: true }) @ApiProperty({ type: [String] })
+  attributeValueIds: string[];
   @IsInt() @Min(0) @ApiProperty({ example: 14990 }) priceCents: number;
   @IsOptional() @IsInt() @Min(0) @ApiPropertyOptional({ example: 10 }) stock?: number;
   @IsOptional() @ApiPropertyOptional() isActive?: boolean;
+  @IsOptional() @IsNumber() @Min(0) @ApiPropertyOptional({ example: 2.5 }) weightInGrams?: number;
 }
 
 export class UpdateVariantDTO {
   @IsOptional() @IsString() @ApiPropertyOptional() sku?: string;
-  @IsOptional() @IsIn(['OURO_18K', 'PRATA_925', 'ACO_INOX']) @ApiPropertyOptional() banho?: string;
-  @IsOptional() @IsString() @ApiPropertyOptional() size?: string;
+  @IsOptional() @IsArray() @IsUUID('all', { each: true }) @ApiPropertyOptional({ type: [String] })
+  attributeValueIds?: string[];
   @IsOptional() @IsInt() @Min(0) @ApiPropertyOptional() priceCents?: number;
+  @IsOptional() @IsInt() @Min(0) @ApiPropertyOptional() stock?: number;
   @IsOptional() @ApiPropertyOptional() isActive?: boolean;
+  @IsOptional() @IsNumber() @Min(0) @ApiPropertyOptional() weightInGrams?: number;
 }
 
 export class AdjustStockDTO {

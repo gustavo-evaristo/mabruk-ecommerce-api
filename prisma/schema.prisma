@@ -57,16 +57,57 @@ model banners {
   updatedAt       DateTime  @updatedAt
 }
 
+// =========================================================
+// Atributos (Cor, Banho, Tamanho…) — catálogo global e reusável
+// =========================================================
+
+model attributes {
+  id        String   @id @default(uuid())
+  slug      String   @unique          // 'cor' | 'banho' | 'tamanho'
+  name      String                    // 'Cor' | 'Banho' | 'Tamanho'
+  type      String   @default("SELECT") // SELECT | COLOR (mostra swatch hex)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  values             attribute_values[]
+  productAttributes  product_attributes[]
+}
+
+model attribute_values {
+  id          String   @id @default(uuid())
+  attributeId String
+  attribute   attributes @relation(fields: [attributeId], references: [id], onDelete: Cascade)
+  slug        String                       // 'azul' | 'ouro-18k' | '16'
+  name        String                       // 'Azul' | 'Ouro 18k' | '16'
+  hex         String?                      // só pra type=COLOR (#1E40AF, etc.)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  variantValues product_variant_values[]
+
+  @@unique([attributeId, slug])
+  @@index([attributeId])
+}
+
 model products {
   id              String   @id @default(uuid())
   slug            String   @unique
   name            String
   description     String?
   status          String   @default("DRAFT") // DRAFT | ACTIVE | ARCHIVED
+  type            String   @default("SIMPLE") // SIMPLE | VARIABLE
   categoryId      String
   category        categories @relation(fields: [categoryId], references: [id])
-  basePrice       Int        // cents — preço "de" exibido quando todas as variantes têm preços diferentes
-  weightInGrams   Int?
+
+  // Campos só-SIMPLE (sincronizados com a variante "default" invisível)
+  sku             String?  @unique
+  price           Int?     // cents
+  stock           Int      @default(0)
+
+  // Comuns
+  basePrice       Int        // cents — preço "from" exibido nos cards
+  weightInGrams   Float?
   dimensionLength Float?     // cm
   dimensionWidth  Float?     // cm
   dimensionHeight Float?     // cm
@@ -74,7 +115,9 @@ model products {
   seoDescription  String?
   createdAt       DateTime   @default(now())
   updatedAt       DateTime   @updatedAt
+  deletedAt       DateTime?  // soft delete — limpo por cron após 30 dias
 
+  attributes      product_attributes[]
   variants        product_variants[]
   images          product_images[]
   collections     collection_products[]
@@ -84,28 +127,53 @@ model products {
 
   @@index([categoryId])
   @@index([status])
+  @@index([type])
+  @@index([deletedAt])
+}
+
+// Quais atributos um produto VARIABLE usa (ordem importa)
+model product_attributes {
+  productId   String
+  product     products  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  attributeId String
+  attribute   attributes @relation(fields: [attributeId], references: [id])
+  order       Int       @default(0)
+
+  @@id([productId, attributeId])
+  @@index([attributeId])
 }
 
 model product_variants {
-  id        String   @id @default(uuid())
-  productId String
-  product   products @relation(fields: [productId], references: [id], onDelete: Cascade)
-  sku       String   @unique
-  banho     String   // OURO_18K | PRATA_925 | ACO_INOX
-  size      String   // '14' | '15' | '16' | 'UNICO' | 'P' | 'M' | 'G'…
-  price     Int      // cents
-  stock     Int      @default(0)
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id              String   @id @default(uuid())
+  productId       String
+  product         products @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sku             String   @unique
+  price           Int                       // cents — sempre obrigatório (default = product.basePrice)
+  stock           Int      @default(0)
+  isActive        Boolean  @default(true)
+  weightInGrams   Float?                    // override opcional do peso do produto
+  isDefault       Boolean  @default(false)  // true para a variante auto-criada de produto SIMPLE
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
+  values       product_variant_values[]
   images       product_images[]
   stockMoves   stock_movements[]
   cartItems    cart_items[]
   orderItems   order_items[]
 
-  @@unique([productId, banho, size])
   @@index([productId])
+}
+
+// Quais valores de atributo essa variante carrega (ex: variante = Azul + Ouro 18k)
+model product_variant_values {
+  variantId        String
+  variant          product_variants @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  attributeValueId String
+  attributeValue   attribute_values @relation(fields: [attributeValueId], references: [id])
+
+  @@id([variantId, attributeValueId])
+  @@index([attributeValueId])
 }
 
 model product_images {

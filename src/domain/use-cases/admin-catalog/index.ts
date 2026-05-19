@@ -14,3 +14,6 @@ export * from './category.use-cases';
 export * from './collection.use-cases';
 export * from './tag.use-cases';
 export * from './banner.use-cases';
+export * from './trash.use-cases';
+export * from './attribute.use-cases';
+export * from './generate-variants.use-case';

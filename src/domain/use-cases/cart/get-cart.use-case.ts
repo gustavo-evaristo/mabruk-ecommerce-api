@@ -11,8 +11,8 @@ export interface CartLine {
   productId: string;
   productSlug: string;
   productName: string;
-  banho: string;
-  size: string;
+  /** Atributos da variante (ex: [{name:'Banho', value:'Ouro 18k'}]). Vazio em produto SIMPLE. */
+  attributes: { name: string; value: string }[];
   sku: string;
   unitPriceCents: number;
   quantity: number;
@@ -57,6 +57,7 @@ export class GetCartUseCase {
 
     const variantIds = data.items.map((i) => i.variantId.toString());
     const variants = await this.variantRepository.listByIds(variantIds);
+    const variantValues = await this.variantRepository.getValuesForVariants(variantIds);
 
     const productIds = Array.from(new Set(variants.map((v) => v.productId.toString())));
     const products = await Promise.all(productIds.map((id) => this.productRepository.get(id)));
@@ -71,14 +72,18 @@ export class GetCartUseCase {
       const imgs = productIdx >= 0 ? imagesPerProduct[productIdx] : [];
       const imageUrl = imgs[0]?.url ?? null;
       const unitPrice = v?.price ?? 0;
+      const vId = v?.id.toString() ?? '';
+      const attrs = (variantValues[vId] ?? []).map((av) => ({
+        name: av.attributeName,
+        value: av.valueName,
+      }));
       return {
         itemId: it.id.toString(),
         variantId: it.variantId.toString(),
         productId: v?.productId.toString() ?? '',
         productSlug: p?.slug ?? '',
         productName: p?.name ?? '',
-        banho: v?.banho ?? '',
-        size: v?.size ?? '',
+        attributes: attrs,
         sku: v?.sku ?? '',
         unitPriceCents: unitPrice,
         quantity: it.quantity,

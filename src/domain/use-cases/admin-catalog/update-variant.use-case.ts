@@ -5,10 +5,12 @@ import { ProductVariantEntity } from 'src/domain/entities/product-variant.entity
 interface Input {
   variantId: string;
   sku?: string;
-  banho?: string;
-  size?: string;
   priceCents?: number;
+  stock?: number;
   isActive?: boolean;
+  weightInGrams?: number | null;
+  /** Se passado, substitui completamente os valores de atributo da variante. */
+  attributeValueIds?: string[];
 }
 
 @Injectable()
@@ -17,17 +19,17 @@ export class UpdateVariantUseCase {
 
   async execute(input: Input): Promise<ProductVariantEntity> {
     const v = await this.variantRepository.get(input.variantId);
-    if (!v) throw new NotFoundException('Variant not found');
+    if (!v) throw new NotFoundException('Variante não encontrada');
 
     v.update({
       sku: input.sku,
-      banho: input.banho,
-      size: input.size,
       price: input.priceCents,
+      stock: input.stock,
       isActive: input.isActive,
+      weightInGrams: input.weightInGrams ?? undefined,
     });
 
-    await this.variantRepository.update(v);
+    await this.variantRepository.update(v, input.attributeValueIds);
     return v;
   }
 }

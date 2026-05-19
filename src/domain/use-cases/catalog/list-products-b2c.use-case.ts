@@ -10,7 +10,8 @@ export interface ListProductsB2CInput {
   categorySlug?: string;
   collectionSlug?: string;
   tagSlug?: string;
-  banho?: string;
+  /** Filtros por atributo: { 'cor': ['azul', 'vermelho'], 'banho': ['ouro-18k'] } */
+  attributeFilters?: Record<string, string[]>;
   minPriceCents?: number;
   maxPriceCents?: number;
   inStock?: boolean;

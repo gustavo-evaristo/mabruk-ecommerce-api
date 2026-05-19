@@ -23,13 +23,18 @@ import {
   DeleteProductImageUseCase,
   DeleteProductUseCase,
   DeleteVariantUseCase,
+  GenerateProductVariantsUseCase,
   GetProductAdminUseCase,
+  HardDeleteProductUseCase,
+  ListDeletedProductsUseCase,
   ListProductsAdminUseCase,
   ReorderProductImagesUseCase,
+  RestoreProductUseCase,
   UpdateProductUseCase,
   UpdateVariantUseCase,
   UploadProductImageUseCase,
 } from 'src/domain/use-cases/admin-catalog';
+import { GenerateVariantsDTO } from 'src/infra/dtos/admin-catalog/attribute.dtos';
 import {
   AdjustStockDTO,
   CreateProductDTO,
@@ -63,7 +68,32 @@ export class AdminProductsController {
     private readonly uploadImage: UploadProductImageUseCase,
     private readonly deleteImage: DeleteProductImageUseCase,
     private readonly reorderImages: ReorderProductImagesUseCase,
+    private readonly listDeleted: ListDeletedProductsUseCase,
+    private readonly restoreProduct: RestoreProductUseCase,
+    private readonly hardDeleteProduct: HardDeleteProductUseCase,
+    private readonly generateVariants: GenerateProductVariantsUseCase,
   ) {}
+
+  @Get('trash')
+  @ApiOperation({ summary: 'Lista produtos na lixeira (soft-deleted)' })
+  async trash() {
+    const items = await this.listDeleted.execute();
+    return { items: items.map(presentProductListItem) };
+  }
+
+  @Post(':id/restore')
+  @ApiOperation({ summary: 'Restaura produto da lixeira' })
+  async restore(@Param('id') id: string) {
+    await this.restoreProduct.execute(id);
+    return { ok: true };
+  }
+
+  @Delete(':id/hard')
+  @ApiOperation({ summary: 'Apaga produto permanentemente (hard delete)' })
+  async hardDelete(@Param('id') id: string) {
+    await this.hardDeleteProduct.execute(id);
+    return { ok: true };
+  }
 
   @Get()
   @ApiOperation({ summary: 'Lista produtos (admin)' })
@@ -118,6 +148,12 @@ export class AdminProductsController {
   async addVariant(@Param('id') productId: string, @Body() body: CreateVariantDTO) {
     const v = await this.createVariant.execute({ productId, ...body });
     return presentVariant(v);
+  }
+
+  @Post(':id/variants/generate')
+  @ApiOperation({ summary: 'Gera todas as combinações cartesianas faltantes dos atributos' })
+  async generate(@Param('id') productId: string, @Body() body: GenerateVariantsDTO) {
+    return this.generateVariants.execute({ productId, ...body });
   }
 
   @Patch(':id/variants/:variantId')

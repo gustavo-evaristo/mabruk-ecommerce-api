@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query, Req } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
   GetProductBySlugUseCase,
@@ -12,6 +12,22 @@ import {
   presentProductListItem,
 } from 'src/infra/controllers/presenters/product.presenter';
 
+/** Extrai `?attr_<slug>=v1,v2` da query string em um Record<slug, values[]>. */
+function parseAttributeFilters(query: Record<string, any>): Record<string, string[]> {
+  const out: Record<string, string[]> = {};
+  for (const [key, raw] of Object.entries(query)) {
+    if (!key.startsWith('attr_')) continue;
+    const slug = key.slice(5);
+    if (!slug) continue;
+    const values = String(raw)
+      .split(',')
+      .map((v) => v.trim())
+      .filter(Boolean);
+    if (values.length) out[slug] = values;
+  }
+  return out;
+}
+
 @ApiTags('B2C / Catalog / Products')
 @Controller('b2c/products')
 export class B2CProductsController {
@@ -23,14 +39,18 @@ export class B2CProductsController {
   ) {}
 
   @Get()
-  @ApiOperation({ summary: 'Lista produtos ativos com filtros' })
-  async list(@Query() query: ListProductsQueryDTO) {
+  @ApiOperation({
+    summary:
+      'Lista produtos ativos com filtros. Atributos via ?attr_<slug>=v1,v2 (ex.: ?attr_cor=azul,vermelho&attr_banho=ouro-18k)',
+  })
+  async list(@Query() query: ListProductsQueryDTO, @Req() req: any) {
+    const attributeFilters = parseAttributeFilters(req.query || {});
     const result = await this.listUseCase.execute({
       search: query.search,
       categorySlug: query.category,
       collectionSlug: query.collection,
       tagSlug: query.tag,
-      banho: query.banho,
+      attributeFilters: Object.keys(attributeFilters).length ? attributeFilters : undefined,
       minPriceCents: query.minPriceCents,
       maxPriceCents: query.maxPriceCents,
       inStock: query.inStock,
@@ -40,6 +60,7 @@ export class B2CProductsController {
     });
     return {
       items: result.items.map(presentProductListItem),
+      availableAttributes: result.availableAttributes,
       total: result.total,
       page: result.page,
       pageSize: result.pageSize,

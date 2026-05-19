@@ -66,9 +66,9 @@ export class CreateOrderFromCartUseCase {
     }
 
     // Snapshots de variantes/produtos/imagens
-    const variants = await this.variantRepository.listByIds(
-      data.items.map((i) => i.variantId.toString()),
-    );
+    const variantIds = data.items.map((i) => i.variantId.toString());
+    const variants = await this.variantRepository.listByIds(variantIds);
+    const variantValues = await this.variantRepository.getValuesForVariants(variantIds);
     const productIds = Array.from(new Set(variants.map((v) => v.productId.toString())));
     const [products, imagesByProduct] = await Promise.all([
       Promise.all(productIds.map((id) => this.productRepository.get(id))),
@@ -134,6 +134,10 @@ export class CreateOrderFromCartUseCase {
       const p = products.find((px) => px?.id.toString() === v.productId.toString())!;
       const idx = productIds.indexOf(v.productId.toString());
       const firstImg = imagesByProduct[idx]?.[0]?.url ?? null;
+      const attrs = (variantValues[v.id.toString()] ?? []).map((av) => ({
+        name: av.attributeName,
+        value: av.valueName,
+      }));
       return new OrderItemEntity({
         orderId: order.id,
         variantId: v.id,
@@ -142,9 +146,8 @@ export class CreateOrderFromCartUseCase {
           name: p.name,
           slug: p.slug,
           imageUrl: firstImg,
-          banho: v.banho,
-          size: v.size,
           sku: v.sku,
+          attributes: attrs,
         },
         unitPrice: v.price,
         quantity: it.quantity,
@@ -176,8 +179,7 @@ export class CreateOrderFromCartUseCase {
           grandTotalCents: order.grandTotal,
           items: items.map((i) => ({
             name: i.productSnapshot.name,
-            banho: i.productSnapshot.banho,
-            size: i.productSnapshot.size,
+            attributes: i.productSnapshot.attributes,
             quantity: i.quantity,
             unitPrice: i.unitPrice,
           })),

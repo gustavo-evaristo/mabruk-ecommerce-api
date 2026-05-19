@@ -21,6 +21,7 @@ import {
   IPromotionRepository,
   ILandingRepository,
   IReviewRepository,
+  IAttributeRepository,
 } from 'src/domain/repositories';
 import { CategoryRepository } from './repositories/category.repository';
 import { CollectionRepository } from './repositories/collection.repository';
@@ -42,6 +43,7 @@ import { SettingRepository } from './repositories/setting.repository';
 import { PromotionRepository } from './repositories/promotion.repository';
 import { LandingRepository } from './repositories/landing.repository';
 import { ReviewRepository } from './repositories/review.repository';
+import { AttributeRepository } from './repositories/attribute.repository';
 import { StoreConfigService } from 'src/domain/services/store-config';
 
 @Module({
@@ -67,6 +69,7 @@ import { StoreConfigService } from 'src/domain/services/store-config';
     { provide: IPromotionRepository, useClass: PromotionRepository },
     { provide: ILandingRepository, useClass: LandingRepository },
     { provide: IReviewRepository, useClass: ReviewRepository },
+    { provide: IAttributeRepository, useClass: AttributeRepository },
     StoreConfigService,
   ],
   exports: [
@@ -91,6 +94,7 @@ import { StoreConfigService } from 'src/domain/services/store-config';
     IPromotionRepository,
     ILandingRepository,
     IReviewRepository,
+    IAttributeRepository,
     StoreConfigService,
   ],
 })

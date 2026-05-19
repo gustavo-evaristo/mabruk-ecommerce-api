@@ -16,6 +16,7 @@ import { AdminCategoriesController } from './b2b/catalog/admin-categories.contro
 import { AdminCollectionsController } from './b2b/catalog/admin-collections.controller';
 import { AdminTagsController } from './b2b/catalog/admin-tags.controller';
 import { AdminBannersController } from './b2b/catalog/admin-banners.controller';
+import { AdminAttributesController } from './b2b/catalog/admin-attributes.controller';
 
 // Use cases (B2C catalog)
 import {
@@ -39,6 +40,11 @@ import {
   CreateProductUseCase,
   CreateTagUseCase,
   CreateVariantUseCase,
+  CleanupExpiredDeletedProductsUseCase,
+  CreateAttributeUseCase,
+  CreateAttributeValueUseCase,
+  DeleteAttributeUseCase,
+  DeleteAttributeValueUseCase,
   DeleteBannerUseCase,
   DeleteCategoryUseCase,
   DeleteCollectionUseCase,
@@ -46,11 +52,18 @@ import {
   DeleteProductUseCase,
   DeleteTagUseCase,
   DeleteVariantUseCase,
+  GenerateProductVariantsUseCase,
   GetProductAdminUseCase,
+  HardDeleteProductUseCase,
+  ListAttributesUseCase,
   ListBannersAdminUseCase,
+  ListDeletedProductsUseCase,
   ListProductsAdminUseCase,
   ReorderProductImagesUseCase,
+  RestoreProductUseCase,
   SetCollectionProductsUseCase,
+  UpdateAttributeUseCase,
+  UpdateAttributeValueUseCase,
   UpdateBannerUseCase,
   UpdateCategoryUseCase,
   UpdateCollectionUseCase,
@@ -86,6 +99,19 @@ import {
     UploadProductImageUseCase,
     DeleteProductImageUseCase,
     ReorderProductImagesUseCase,
+    ListDeletedProductsUseCase,
+    RestoreProductUseCase,
+    HardDeleteProductUseCase,
+    CleanupExpiredDeletedProductsUseCase,
+    GenerateProductVariantsUseCase,
+    // Admin — attributes
+    ListAttributesUseCase,
+    CreateAttributeUseCase,
+    UpdateAttributeUseCase,
+    DeleteAttributeUseCase,
+    CreateAttributeValueUseCase,
+    UpdateAttributeValueUseCase,
+    DeleteAttributeValueUseCase,
     // Admin — category
     CreateCategoryUseCase,
     UpdateCategoryUseCase,
@@ -105,6 +131,7 @@ import {
     UpdateBannerUseCase,
     DeleteBannerUseCase,
   ],
+  exports: [CleanupExpiredDeletedProductsUseCase],
   controllers: [
     B2CProductsController,
     B2CFeaturedController,
@@ -117,6 +144,7 @@ import {
     AdminCollectionsController,
     AdminTagsController,
     AdminBannersController,
+    AdminAttributesController,
   ],
 })
 export class CatalogModule {}
