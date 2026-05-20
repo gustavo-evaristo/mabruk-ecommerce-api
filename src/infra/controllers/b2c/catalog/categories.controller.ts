@@ -16,6 +16,7 @@ export class B2CCategoriesController {
         id: c.id.toString(),
         slug: c.slug,
         name: c.name,
+        imageUrl: c.imageUrl,
         order: c.order,
       })),
     };

@@ -70,6 +70,7 @@ import {
   UpdateProductUseCase,
   UpdateTagUseCase,
   UpdateVariantUseCase,
+  UploadCategoryImageUseCase,
   UploadProductImageUseCase,
 } from 'src/domain/use-cases/admin-catalog';
 
@@ -116,6 +117,7 @@ import {
     CreateCategoryUseCase,
     UpdateCategoryUseCase,
     DeleteCategoryUseCase,
+    UploadCategoryImageUseCase,
     // Admin — collection
     CreateCollectionUseCase,
     UpdateCollectionUseCase,

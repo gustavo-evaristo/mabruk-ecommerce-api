@@ -15,6 +15,7 @@ model categories {
   id        String   @id @default(uuid())
   slug      String   @unique
   name      String
+  imageUrl  String?
   order     Int      @default(0)
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())

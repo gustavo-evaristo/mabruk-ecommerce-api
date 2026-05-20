@@ -4,6 +4,7 @@ type CategoryEntityProps = {
   id?: UUID | string | null;
   slug: string;
   name: string;
+  imageUrl?: string | null;
   order?: number;
   isActive?: boolean;
   createdAt?: Date | null;
@@ -14,6 +15,7 @@ export class CategoryEntity {
   id: UUID;
   slug: string;
   name: string;
+  imageUrl: string | null;
   order: number;
   isActive: boolean;
   createdAt: Date;
@@ -30,6 +32,7 @@ export class CategoryEntity {
 
     this.slug = props.slug;
     this.name = props.name;
+    this.imageUrl = props.imageUrl ?? null;
     this.order = props.order ?? 0;
     this.isActive = props.isActive ?? true;
 
@@ -42,9 +45,16 @@ export class CategoryEntity {
     this.updatedAt = new Date();
   }
 
-  update(props: { slug?: string; name?: string; order?: number; isActive?: boolean }) {
+  update(props: {
+    slug?: string;
+    name?: string;
+    imageUrl?: string | null;
+    order?: number;
+    isActive?: boolean;
+  }) {
     if (props.slug !== undefined) this.slug = props.slug;
     if (props.name !== undefined) this.name = props.name;
+    if (props.imageUrl !== undefined) this.imageUrl = props.imageUrl ?? null;
     if (props.order !== undefined) this.order = props.order;
     if (props.isActive !== undefined) this.isActive = props.isActive;
     this.touch();

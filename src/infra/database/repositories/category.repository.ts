@@ -13,6 +13,7 @@ export class CategoryRepository implements ICategoryRepository {
       id: UUID.from(row.id),
       slug: row.slug,
       name: row.name,
+      imageUrl: row.imageUrl,
       order: row.order,
       isActive: row.isActive,
       createdAt: row.createdAt,
@@ -44,6 +45,7 @@ export class CategoryRepository implements ICategoryRepository {
         id: c.id.toString(),
         slug: c.slug,
         name: c.name,
+        imageUrl: c.imageUrl,
         order: c.order,
         isActive: c.isActive,
         createdAt: c.createdAt,
@@ -58,6 +60,7 @@ export class CategoryRepository implements ICategoryRepository {
       data: {
         slug: c.slug,
         name: c.name,
+        imageUrl: c.imageUrl,
         order: c.order,
         isActive: c.isActive,
         updatedAt: c.updatedAt,
